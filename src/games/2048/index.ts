@@ -5,7 +5,7 @@ const twentyFortyEight: GameEntry = {
   meta: {
     id: '2048',
     title: '2048',
-    blurb: 'Trượt ô, cộng số. Đến 2048 thì thắng — có thể chơi tiếp.',
+    blurb: 'Trượt ô, cộng số. Điểm không giới hạn. Mở 4096 thì thỉnh thoảng spawn ô 8.',
     tags: ['PvE', 'puzzle', 'số'],
     accent: '#f2a65a',
   },

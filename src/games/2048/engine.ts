@@ -1,5 +1,5 @@
 export type Dir = 'U' | 'D' | 'L' | 'R'
-export type Status = 'playing' | 'won' | 'lost'
+export type Status = 'playing' | 'lost'
 
 export type Tile = {
   id: number
@@ -16,11 +16,12 @@ export type State = {
   tiles: Tile[]
   score: number
   status: Status
-  wonOnce: boolean
+  unlocked4096: boolean
   moveId: number
 }
 
 const SIZE = 4
+const SPAWN_EIGHT_CHANCE = 0.04
 let nextId = 1
 
 export function createGame(size = SIZE): State {
@@ -29,7 +30,7 @@ export function createGame(size = SIZE): State {
     tiles: [],
     score: 0,
     status: 'playing',
-    wonOnce: false,
+    unlocked4096: false,
     moveId: 0,
   }
   state = spawn(state)
@@ -37,13 +38,8 @@ export function createGame(size = SIZE): State {
   return state
 }
 
-export function continuePlay(state: State): State {
-  if (state.status !== 'won') return state
-  return { ...state, status: 'playing' }
-}
-
 export function move(state: State, dir: Dir): State {
-  if (state.status === 'lost' || state.status === 'won') return state
+  if (state.status === 'lost') return state
   const { tiles, score, changed } = slideTiles(state.tiles, state.size, dir)
   if (!changed) {
     if (!canMove(tiles, state.size)) return { ...state, tiles, status: 'lost' }
@@ -53,12 +49,10 @@ export function move(state: State, dir: Dir): State {
     ...state,
     tiles,
     score: state.score + score,
+    unlocked4096: state.unlocked4096 || tiles.some((tile) => !tile.gone && tile.value >= 4096),
     moveId: state.moveId + 1,
   }
   next = spawn(next)
-  if (!state.wonOnce && next.tiles.some((tile) => !tile.gone && tile.value >= 2048)) {
-    return { ...next, status: 'won', wonOnce: true }
-  }
   if (!canMove(next.tiles, next.size)) {
     return { ...next, status: 'lost' }
   }
@@ -102,7 +96,7 @@ function spawn(state: State): State {
   const index = empties[Math.floor(Math.random() * empties.length)]
   const tile: Tile = {
     id: nextId,
-    value: Math.random() < 0.9 ? 2 : 4,
+    value: rollSpawn(state.unlocked4096),
     x: index % state.size,
     y: Math.floor(index / state.size),
     born: true,
@@ -111,6 +105,11 @@ function spawn(state: State): State {
   }
   nextId += 1
   return { ...state, tiles: [...state.tiles, tile] }
+}
+
+export function rollSpawn(unlocked4096: boolean, rand = Math.random) {
+  if (unlocked4096 && rand() < SPAWN_EIGHT_CHANCE) return 8
+  return rand() < 0.9 ? 2 : 4
 }
 
 function slideTiles(source: Tile[], size: number, dir: Dir) {

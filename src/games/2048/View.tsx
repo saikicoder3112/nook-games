@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type TouchEvent } from 'react'
-import { continuePlay, createGame, highest, move, pruneTiles, type Dir, type State } from './engine'
+import { createGame, highest, move, pruneTiles, type Dir, type State } from './engine'
 
 const KEYS: Record<string, Dir> = {
   ArrowUp: 'U',
@@ -84,18 +84,8 @@ export function TwentyFortyEightView() {
         <button className="btn" onClick={() => setState(createGame())}>
           Ván mới
         </button>
-        {state.status === 'won' ? (
-          <button className="btn primary" onClick={() => setState(continuePlay)}>
-            Chơi tiếp
-          </button>
-        ) : null}
       </div>
       <div className="board-wrap">
-        {state.status === 'won' ? (
-          <div className="banner won" role="status">
-            Tới 2048. Chơi tiếp hoặc mở ván mới.
-          </div>
-        ) : null}
         {state.status === 'lost' ? (
           <div className="banner lost" role="status">
             Hết nước đi. {state.score} điểm.
@@ -118,13 +108,15 @@ export function TwentyFortyEightView() {
                 transform: `translate3d(calc(${tile.x} * (var(--cell) + var(--gap))), calc(${tile.y} * (var(--cell) + var(--gap))), 0)`,
               }}
             >
-              <span className={`t2048 v${Math.min(tile.value, 2048)}${tile.born ? ' spawned' : ''}${tile.merged ? ' merged' : ''}`}>
+              <span className={`t2048 ${tileTone(tile.value)}${tile.born ? ' spawned' : ''}${tile.merged ? ' merged' : ''}`}>
                 {tile.value}
               </span>
             </span>
           ))}
         </div>
-        <p className="help">Mũi tên, WASD, hoặc vuốt trên bàn. Ô giống nhau cộng lại. Tới 2048 thì thắng.</p>
+        <p className="help">
+          Mũi tên, WASD, hoặc vuốt. Ô giống nhau cộng lại. Điểm không giới hạn. Có ô 4096 thì thỉnh thoảng spawn ô 8.
+        </p>
         <div className="pad">
           <span className="spacer" />
           <button className="btn" onClick={() => play('U')}>
@@ -176,6 +168,13 @@ export function TwentyFortyEightView() {
     const dir: Dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'R' : 'L') : dy > 0 ? 'D' : 'U'
     play(dir)
   }
+}
+
+function tileTone(value: number) {
+  if (value <= 2048 || value === 4096 || value === 8192 || value === 16384 || value === 32768 || value === 65536) {
+    return `v${value}`
+  }
+  return 'v-high'
 }
 
 function readBest() {

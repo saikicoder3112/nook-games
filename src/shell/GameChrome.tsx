@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { FitViewport } from './FitViewport'
 
 type Props = {
   title: string
@@ -17,7 +18,7 @@ export function GameChrome({ title, children }: Props) {
           <h1>{title}</h1>
         </div>
       </div>
-      {children}
+      <FitViewport>{children}</FitViewport>
     </section>
   )
 }

@@ -1,16 +1,16 @@
 import type { CSSProperties } from 'react'
-import { Link, Navigate, Route, Routes, useParams } from 'react-router-dom'
+import { Link, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { games, getGame } from '../games/register'
 import { GameChrome } from './GameChrome'
 
 export function App() {
+  const playing = useLocation().pathname.startsWith('/g/')
   return (
-    <div className="shell">
+    <div className={playing ? 'shell play' : 'shell'}>
       <header className="topbar">
         <Link to="/" className="wordmark">
           Nook <span>games</span>
         </Link>
-        <div className="topbar-note">PvE · chơi ngay · thêm game bằng 1 file</div>
       </header>
       <Routes>
         <Route path="/" element={<Home />} />
@@ -27,8 +27,7 @@ function Home() {
       <section className="hero">
         <h1>Một kệ game, mỗi trò một hộp.</h1>
         <p>
-          Chơi trực tiếp trong trình duyệt, không tài khoản, không database. Muốn thêm
-          game mới thì viết engine + màn hình, rồi đăng ký vào catalog.
+          Chơi trực tiếp trong trình duyệt, không tài khoản.
         </p>
       </section>
       <section className="catalog">
@@ -54,11 +53,6 @@ function Home() {
           </Link>
         ))}
       </section>
-      <p className="add-hint">
-        Thêm game: tạo <code>src/games/ten-game/</code> với <code>View</code> +{' '}
-        <code>meta</code>, export <code>GameEntry</code>, rồi đẩy vào mảng trong{' '}
-        <code>src/games/register.ts</code>.
-      </p>
     </>
   )
 }
